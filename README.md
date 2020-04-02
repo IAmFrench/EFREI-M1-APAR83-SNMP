@@ -1,15 +1,12 @@
-Shinken Basic
+Shinken
 =============
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/rohit01/shinken.svg)](https://hub.docker.com/r/rohit01/shinken/) [![Docker Stars](https://img.shields.io/docker/stars/rohit01/shinken.svg)](https://hub.docker.com/r/rohit01/shinken/) [![](https://badge.imagelayers.io/rohit01/shinken:latest.svg)](https://imagelayers.io/?images=rohit01/shinken:latest)
+## Installation
+```
+docker-compose up -d
+```
 
 It has basic shinken installation along with few must have modules like WebUI2 (Web Interface), standard nrpe plugins + few extra ones, nrpe-booster support and a lightweight web server (nginx).
-
-How to run:
-
-    $ git clone https://github.com/rohit01/docker_shinken.git
-    $ cd docker_shinken/shinken_basic
-    $ sudo docker run -d -v "$(pwd)/custom_configs:/etc/shinken/custom_configs" -p 80:80 rohit01/shinken
 
 Once done, visit this url: <http://localhost/>
 Default credentials: admin/admin
