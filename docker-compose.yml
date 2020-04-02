@@ -2,17 +2,23 @@ version: '3.2'
 
 services:
   shinken:
-    image: rohit01/shinken
+    build: 
+      context: shinken/
     environment:
     - "TZ=UTC"  # UTC can be replaced by any valid timezone.
     ports:
       - "80:80"
+      - "160-161:160-161"
     volumes:
       - ./custom_configs:/etc/shinken/custom_configs
       - ./extra_plugins:/usr/local/custom_plugins
       - type: bind
         source: ./shinken/config/hosts
         target: /etc/shinken/hosts
+        read_only: true
+      - type: bind
+        source: ./shinken/config/packs
+        target: /etc/shinken/packs
         read_only: true
     networks:
       main:
@@ -30,6 +36,8 @@ services:
     tty: true
     networks:
       - main
+    ports: 
+      - "160-161"
   client2:
     build:
       context: client/
@@ -42,7 +50,22 @@ services:
     tty: true
     networks:
       - main
-
+    ports: 
+      - "160-161"
+  client3:
+    build:
+      context: client/
+    volumes:
+      - type: bind
+        source: ./client/config/snmpd.conf
+        target: /etc/snmp/snmpd.conf
+        read_only: true
+    stdin_open: true
+    tty: true
+    networks:
+      - main
+    ports: 
+      - "160-161"
 
 networks:
   main:
