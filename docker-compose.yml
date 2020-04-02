@@ -1,4 +1,4 @@
-version: '2'
+version: '3.2'
 
 services:
   shinken:
@@ -8,5 +8,47 @@ services:
     ports:
       - "80:80"
     volumes:
-       - ./custom_configs:/etc/shinken/custom_configs
-       - ./extra_plugins:/usr/local/custom_plugins
+      - ./custom_configs:/etc/shinken/custom_configs
+      - ./extra_plugins:/usr/local/custom_plugins
+      - type: bind
+        source: ./shinken/config/hosts
+        target: /etc/shinken/hosts
+        read_only: true
+    networks:
+      main:
+        ipv4_address: "172.25.0.10"
+    restart: always
+  client1:
+    build:
+      context: client/
+    volumes:
+      - type: bind
+        source: ./client/config/snmpd.conf
+        target: /etc/snmp/snmpd.conf
+        read_only: true
+    stdin_open: true
+    tty: true
+    networks:
+      - main
+  client2:
+    build:
+      context: client/
+    volumes:
+      - type: bind
+        source: ./client/config/snmpd.conf
+        target: /etc/snmp/snmpd.conf
+        read_only: true
+    stdin_open: true
+    tty: true
+    networks:
+      - main
+
+
+networks:
+  main:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.25.0.0/24"
+      
