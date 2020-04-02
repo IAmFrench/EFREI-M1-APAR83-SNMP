@@ -13,10 +13,6 @@ services:
       - ./custom_configs:/etc/shinken/custom_configs
       - ./extra_plugins:/usr/local/custom_plugins
       - type: bind
-        source: ./shinken/config/hosts
-        target: /etc/shinken/hosts
-        read_only: true
-      - type: bind
         source: ./shinken/config/packs
         target: /etc/shinken/packs
         read_only: true
