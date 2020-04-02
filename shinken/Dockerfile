@@ -1,27 +1,59 @@
 # Shinken Docker installation using pip (latest)
 FROM    ubuntu:bionic
-RUN     apt-get update \
-    && apt-get install python-pip python-pycurl -y
+RUN apt-get update \
+    && apt-get install build-essential checkinstall apt-utils -y \
+    && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    && apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev -y
 
-# Add user
+# Install python 2.7
+RUN apt-get install python2.7 -y
+
+# Install Python tools
+RUN apt-get install python-pip -y
+RUN apt-get install python-pycurl python-wheel python-cherrypy python-setuptools -y
+
+# Create user and group for shinken
 RUN groupadd -r shinken && useradd --create-home --no-log-init -r -g shinken shinken
 
-# Install dependencies
-RUN apt-get update \
-    && apt-get install nagios-plugins -y
+# Build from sources... because pip install is bugged as f*ck
+ADD https://github.com/naparuba/shinken/archive/2.4.3.tar.gz /shinken-2-4-3.tar.gz
+RUN tar -xvf shinken-2-4-3.tar.gz -C /tmp \
+    && cd /tmp/shinken-2.4.3
+WORKDIR /tmp/shinken-2.4.3
+RUN python setup.py install
+WORKDIR /
+RUN rm shinken-2-4-3.tar.gz \
+    && rm -rfv /tmp/*
 
-# Install Shinken
-RUN pip install shinken
+# Init shinken
+RUN su - shinken -c 'shinken --init' \
+    && su - shinken -c 'shinken install webui2'
+# install webui2
+RUN pip install pymongo>=3.0.3 requests arrow bottle==0.12.8
+RUN apt-get install mongodb -y
+COPY webui2.cfg /etc/shinken/modules/webui2.cfg
+COPY broker-master.cfg /etc/shinken/brokers/broker-master.cfg
+
+
+EXPOSE 8080/udp
+EXPOSE 7772/udp
+EXPOSE 80/udp
 
 # Install Nagio-SNMP Plugins
 ADD http://nagios.manubulon.com/nagios-snmp-plugins.1.1.1.tgz /nagios-snmp-plugins.tgz
 RUN tar -xvf nagios-snmp-plugins.tgz -C /tmp \
     && cd /tmp/nagios_plugins \
-    && mkdir /var/lib/shinken && mkdir /var/lib/shinken/libexec/ \
+    # && mkdir /var/lib/shinken && mkdir /var/lib/shinken/libexec/ \
     && cp check_snmp_*.pl /var/lib/shinken/libexec/ \ 
+    && cd / \
     && rm nagios-snmp-plugins.tgz \
     && rm -rfv /tmp/*
 
-# VOLUME      ["/etc/shinken/custom_configs", "/usr/local/custom_plugins"]
+# Install nagios
+RUN apt-get update \
+    && apt-get install nagios-plugins -y
 
+
+# VOLUME      ["/etc/shinken/custom_configs", "/usr/local/custom_plugins"]
+RUN /etc/init.d/shinken start
 ENTRYPOINT bash
