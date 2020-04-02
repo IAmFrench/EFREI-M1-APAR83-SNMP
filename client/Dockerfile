@@ -1,6 +1,10 @@
 FROM ubuntu
-RUN apt update \
-    && apt-get install snmpd -y \
-    && service snmpd start
-EXPOSE 600-601
-ENTRYPOINT ["/bin/bash"]
+RUN apt-get update \
+    && apt-get install apt-utils -y \
+    && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    && apt-get install snmpd nano -y
+EXPOSE 161/udp
+
+COPY ./bootstrap.sh /bootstrap.sh
+
+ENTRYPOINT ["/bootstrap.sh"]

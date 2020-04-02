@@ -4,21 +4,16 @@ services:
   shinken:
     build: 
       context: shinken/
-    environment:
-    - "TZ=UTC"  # UTC can be replaced by any valid timezone.
     ports:
       - "80:80"
-      - "160-161:160-161"
     volumes:
       - ./custom_configs:/etc/shinken/custom_configs
       - ./extra_plugins:/usr/local/custom_plugins
-      - type: bind
-        source: ./shinken/config/packs
-        target: /etc/shinken/packs
-        read_only: true
     networks:
       main:
-        ipv4_address: "172.25.0.10"
+        ipv4_address: "172.26.0.10"
+    stdin_open: true
+    tty: true
     restart: always
   client1:
     build:
@@ -31,9 +26,10 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - main
-    ports: 
-      - "160-161"
+      main:
+        ipv4_address: "172.26.0.11"
+    links:
+      - shinken
   client2:
     build:
       context: client/
@@ -45,9 +41,10 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - main
-    ports: 
-      - "160-161"
+      main:
+        ipv4_address: "172.26.0.12"
+    links:
+      - shinken
   client3:
     build:
       context: client/
@@ -59,9 +56,14 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - main
+      main:
+        ipv4_address: "172.26.0.13"
     ports: 
-      - "160-161"
+      - "160:160"
+      - "161:161/udp"
+      - "162:162"
+    links:
+      - shinken
 
 networks:
   main:
@@ -69,5 +71,5 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: "172.25.0.0/24"
+        - subnet: "172.26.0.0/24"
       
