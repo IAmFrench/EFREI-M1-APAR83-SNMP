@@ -2,8 +2,7 @@ version: '2'
 
 services:
   shinken:
-    build:
-      context: .
+    image: rohit01/shinken
     environment:
     - "TZ=UTC"  # UTC can be replaced by any valid timezone.
     ports:
