@@ -1,4 +1,3 @@
-# Shinken Docker installation using pip (latest)
 FROM    ubuntu:bionic
 RUN apt-get update \
     && apt-get install build-essential checkinstall apt-utils -y \
@@ -28,15 +27,13 @@ RUN rm shinken-2-4-3.tar.gz \
 # Init shinken
 RUN su - shinken -c 'shinken --init' \
     && su - shinken -c 'shinken install webui2'
+
 # install webui2
 RUN pip install pymongo>=3.0.3 requests arrow bottle==0.12.8
 RUN apt-get install mongodb -y
-COPY webui2.cfg /etc/shinken/modules/webui2.cfg
-COPY broker-master.cfg /etc/shinken/brokers/broker-master.cfg
+COPY ./config/webui2.cfg /etc/shinken/modules/webui2.cfg
+COPY ./config/broker-master.cfg /etc/shinken/brokers/broker-master.cfg
 
-
-EXPOSE 8080/udp
-EXPOSE 7772/udp
 EXPOSE 80/udp
 
 # Install Nagio-SNMP Plugins
@@ -54,6 +51,6 @@ RUN apt-get update \
     && apt-get install nagios-plugins -y
 
 
-# VOLUME      ["/etc/shinken/custom_configs", "/usr/local/custom_plugins"]
-RUN /etc/init.d/shinken start
-ENTRYPOINT bash
+COPY ./bootstrap.sh /bootstrap.sh
+
+ENTRYPOINT ["/bootstrap.sh"]
