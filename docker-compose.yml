@@ -4,11 +4,17 @@ services:
   shinken:
     build: 
       context: shinken/
+    environment: 
+      NAGIOSPLUGINSDIR: $NAGIOSPLUGINSDIR
+      LC_ALL: $LC_ALL
+      LANG: $LANG
     ports:
-      - "80:80"
+      - "80:8080"
     volumes:
-      - ./custom_configs:/etc/shinken/custom_configs
-      - ./extra_plugins:/usr/local/custom_plugins
+      - type: bind
+        source: ./shinken/config/clients.cfg
+        target: /etc/shinken/hosts/localhost.cfg
+        read_only: true
     networks:
       main:
         ipv4_address: "172.26.0.10"

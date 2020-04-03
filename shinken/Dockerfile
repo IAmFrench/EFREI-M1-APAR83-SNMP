@@ -26,31 +26,51 @@ RUN rm shinken-2-4-3.tar.gz \
 
 # Init shinken
 RUN su - shinken -c 'shinken --init' \
-    && su - shinken -c 'shinken install webui2'
+    && su - shinken -c 'shinken install webui2' \
+    && su - shinken -c 'shinken install linux-snmp'
 
 # install webui2
 RUN pip install pymongo>=3.0.3 requests arrow bottle==0.12.8
 RUN apt-get install mongodb -y
 COPY ./config/webui2.cfg /etc/shinken/modules/webui2.cfg
 COPY ./config/broker-master.cfg /etc/shinken/brokers/broker-master.cfg
+ADD https://raw.githubusercontent.com/Sysnove/shinken-plugins/master/check_netint.pl /var/lib/shinken/libexec/check_netint.pl
+RUN chmod 750 /var/lib/shinken/libexec/check_netint.pl
+
+# Install nagios
+RUN apt-get install nagios-plugins* cpanminus -y
+RUN cpanm Net::SNMP \
+    && cpanm Time::HiRes \
+    && cpanm DBI
+RUN chmod u+s /usr/lib/nagios/plugins/check_icmp \
+    && ln -s /usr/lib/nagios/plugins/utils.pm /var/lib/shinken/libexec/
+
+# Install locales
+RUN echo ${LC_ALL} \
+    && apt-get install -y locales \
+    && locale-gen ${LC_ALL:-en_US.utf8} \
+    && update-locale LANG=${LC_ALL}
+
+# Create the log directory
+RUN mkdir -p /var/log/rhosts/ \
+    && touch /var/log/rhosts/remote-hosts.log
+
+
+# Install Nagio-SNMP Plugins
+# ADD http://nagios.manubulon.com/nagios-snmp-plugins.1.1.1.tgz /nagios-snmp-plugins.tgz
+# RUN tar -xvf nagios-snmp-plugins.tgz -C /tmp \
+#    && cd /tmp/nagios_plugins \
+#    # && mkdir /var/lib/shinken && mkdir /var/lib/shinken/libexec/ \
+#    && cp check_snmp_*.pl /var/lib/shinken/libexec/ \ 
+#    && cd / \
+#    && rm nagios-snmp-plugins.tgz \
+#    && rm -rfv /tmp/*
+
+
+# Copy startup script
+COPY ./bootstrap.sh /bootstrap.sh
 
 EXPOSE 80/udp
 
-# Install Nagio-SNMP Plugins
-ADD http://nagios.manubulon.com/nagios-snmp-plugins.1.1.1.tgz /nagios-snmp-plugins.tgz
-RUN tar -xvf nagios-snmp-plugins.tgz -C /tmp \
-    && cd /tmp/nagios_plugins \
-    # && mkdir /var/lib/shinken && mkdir /var/lib/shinken/libexec/ \
-    && cp check_snmp_*.pl /var/lib/shinken/libexec/ \ 
-    && cd / \
-    && rm nagios-snmp-plugins.tgz \
-    && rm -rfv /tmp/*
-
-# Install nagios
-RUN apt-get update \
-    && apt-get install nagios-plugins -y
-
-
-COPY ./bootstrap.sh /bootstrap.sh
-
 ENTRYPOINT ["/bootstrap.sh"]
+#ENTRYPOINT bash

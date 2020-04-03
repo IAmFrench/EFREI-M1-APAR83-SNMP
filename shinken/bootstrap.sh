@@ -6,8 +6,10 @@ set -u
 USER_PARAMS=$@
 
 # Internal params
-LOG_CMD="tail -f /var/log/shinken/brokerd.log"
+LOG_CMD="tail -f brokerd.log arbiterd.log  brokerd.log  pollerd.log  reactionnerd.log  receiverd.log  schedulerd.log"
 RUN_CMD="service shinken restart"
+CHANGE_PDW_CMD="cd /var/log/shinken/"
+PWD_CMD="pwd"
 
 #######################################
 # Echo/log function
@@ -21,6 +23,8 @@ log() {
 
 # Launch
 $RUN_CMD
+$CHANGE_PDW_CMD
+$PWD_CMD
 $LOG_CMD
 log $LOG_CMD
 
