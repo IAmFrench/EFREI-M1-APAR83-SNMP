@@ -35,7 +35,9 @@ RUN apt-get install mongodb -y
 COPY ./config/webui2.cfg /etc/shinken/modules/webui2.cfg
 COPY ./config/broker-master.cfg /etc/shinken/brokers/broker-master.cfg
 ADD https://raw.githubusercontent.com/Sysnove/shinken-plugins/master/check_netint.pl /var/lib/shinken/libexec/check_netint.pl
-RUN chmod 750 /var/lib/shinken/libexec/check_netint.pl
+COPY ./config/linux_host.cfg /etc/shinken/templates/linux_host.cfg
+RUN chmod 750 /var/lib/shinken/libexec/check_netint.pl \
+    && chmod 750 /etc/shinken/templates/linux_host.cfg
 
 # Install nagios
 RUN apt-get install nagios-plugins* cpanminus -y
