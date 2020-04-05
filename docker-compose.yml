@@ -65,9 +65,9 @@ services:
       main:
         ipv4_address: "172.26.0.13"
     ports: 
-      - "160:160"
+      - "160"
       - "161:161/udp"
-      - "162:162"
+      - "162"
     links:
       - shinken
 

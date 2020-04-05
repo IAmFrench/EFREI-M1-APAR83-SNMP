@@ -35,9 +35,9 @@ RUN apt-get install mongodb -y
 COPY ./config/webui2.cfg /etc/shinken/modules/webui2.cfg
 COPY ./config/broker-master.cfg /etc/shinken/brokers/broker-master.cfg
 ADD https://raw.githubusercontent.com/Sysnove/shinken-plugins/master/check_netint.pl /var/lib/shinken/libexec/check_netint.pl
+RUN chmod 755 /var/lib/shinken/libexec/check_netint.pl
 COPY ./config/linux_host.cfg /etc/shinken/templates/linux_host.cfg
-RUN chmod 750 /var/lib/shinken/libexec/check_netint.pl \
-    && chmod 750 /etc/shinken/templates/linux_host.cfg
+RUN chmod 755 /etc/shinken/templates/linux_host.cfg
 
 # Install nagios
 RUN apt-get install nagios-plugins* cpanminus -y
@@ -57,17 +57,9 @@ RUN echo ${LC_ALL} \
 RUN mkdir -p /var/log/rhosts/ \
     && touch /var/log/rhosts/remote-hosts.log
 
-
-# Install Nagio-SNMP Plugins
-# ADD http://nagios.manubulon.com/nagios-snmp-plugins.1.1.1.tgz /nagios-snmp-plugins.tgz
-# RUN tar -xvf nagios-snmp-plugins.tgz -C /tmp \
-#    && cd /tmp/nagios_plugins \
-#    # && mkdir /var/lib/shinken && mkdir /var/lib/shinken/libexec/ \
-#    && cp check_snmp_*.pl /var/lib/shinken/libexec/ \ 
-#    && cd / \
-#    && rm nagios-snmp-plugins.tgz \
-#    && rm -rfv /tmp/*
-
+# Fix righs issues with
+RUN chown -R shinken:shinken /var/lib/shinken/ \
+    && chown -R shinken:shinken /etc/shinken/
 
 # Copy startup script
 COPY ./bootstrap.sh /bootstrap.sh
