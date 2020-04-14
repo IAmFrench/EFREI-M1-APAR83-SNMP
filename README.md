@@ -36,6 +36,13 @@ docker-compose ps
 ```
 ![docker-compose ps](./artefacts/docker-compose_ps.png)
 
+or using the Docker Desktop Dashboard:
+![Docker dashboard](./artefacts/docker_desktop_dashboard.png)
+
+> Tips: You can listen all logs by clicking on the project stack
+
+![Docker dashboard stack details](./artefacts/docker_desktop_stack_infos.png)
+
 ## Access
 You can open the Shinken GUI at http://localhost:80
 > Username: admin    
@@ -54,7 +61,7 @@ You can see various informations collected by the snmp agent
 > Note: The TimeSync isn't available because it check a NTP agent, we only unse SNMP for this lab.
 
 
-Let's open the [`Disks`](http://localhost:80/service/client1/Disks) metric from our (`client1`](http://localhost:80/host/client1) host:
+Let's open the [`Disks`](http://localhost:80/service/client1/Disks) metric from our [`client1`](http://localhost:80/host/client1) host:
 ![shinken webGUI client1 Disks link](./artefacts/shinken_webGUI_client1_Disks_link.png)
 
 Here is the [`Disks`](http://localhost:80/service/client1/Disks) page:
