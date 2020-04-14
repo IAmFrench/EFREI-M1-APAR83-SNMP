@@ -66,5 +66,4 @@ COPY ./bootstrap.sh /bootstrap.sh
 
 EXPOSE 80/udp
 
-ENTRYPOINT ["/bootstrap.sh"]
-#ENTRYPOINT bash
+ENTRYPOINT ["bash", "/bootstrap.sh"]

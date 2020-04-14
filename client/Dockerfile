@@ -11,4 +11,4 @@ EXPOSE 161/udp
 
 COPY ./bootstrap.sh /bootstrap.sh
 
-ENTRYPOINT ["/bootstrap.sh"]
+ENTRYPOINT ["bash", "bootstrap.sh"]
